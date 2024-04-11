@@ -198,7 +198,7 @@ public class ParsingUtils {
 										  String startRuleName,
 										  final VirtualFile grammarFile,
 										  String inputText,
-										  Project project) {
+										  Project project, boolean sllMode) {
 		if ( g==null || lg==null ) {
 			ANTLRv4PluginController.LOG.info("parseText can't parse: missing lexer or parser no Grammar object for " +
 					(grammarFile != null ? grammarFile.getName() : "<unknown file>"));
@@ -214,7 +214,7 @@ public class ParsingUtils {
 		lexEngine.removeErrorListeners();
 		lexEngine.addErrorListener(syntaxErrorListener);
 		CommonTokenStream tokens = new TokenStreamSubset(lexEngine);
-		return parseText(g, lg, startRuleName, syntaxErrorListener, tokens, 0);
+		return parseText(g, lg, startRuleName, syntaxErrorListener, tokens, 0, sllMode);
 	}
 
 	private static ParsingResult parseText(Grammar g,
@@ -222,7 +222,7 @@ public class ParsingUtils {
 										  String startRuleName,
 										  SyntaxErrorListener syntaxErrorListener,
 										  TokenStream tokens,
-										  int startIndex) {
+										  int startIndex, boolean sllMode) {
 		String grammarFileName = g.fileName;
 		if (!new File(grammarFileName).exists()) {
 			ANTLRv4PluginController.LOG.info("parseText grammar doesn't exist "+grammarFileName);
@@ -236,7 +236,11 @@ public class ParsingUtils {
 		tokens.seek(startIndex);
 
 		PreviewParser parser = new PreviewParser(g, tokens);
-		parser.getInterpreter().setPredictionMode(PredictionMode.LL_EXACT_AMBIG_DETECTION);
+		if (sllMode) {
+			parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
+		} else {
+			parser.getInterpreter().setPredictionMode(PredictionMode.LL_EXACT_AMBIG_DETECTION);
+		}
 		parser.setProfile(true);
 
 		parser.removeErrorListeners();

@@ -81,6 +81,12 @@ public class PreviewPanel extends JPanel implements ParsingResultSelectionListen
 	private boolean buildTree = true;
 	private boolean buildHierarchy = true;
 
+	public boolean isSllMode() {
+		return sllMode;
+	}
+
+	private boolean sllMode = false;
+
 	private ActionToolbar buttonBar;
 	private final CancelParserAction cancelParserAction = new CancelParserAction();
 
@@ -180,6 +186,17 @@ public class PreviewPanel extends JPanel implements ParsingResultSelectionListen
 				buildHierarchy = state;
 			}
 		};
+		ToggleAction sllModeBtn = new ToggleAction("Use SLL parse mode",null,AllIcons.Actions.ShowAsTree) {
+			@Override
+			public boolean isSelected(@NotNull AnActionEvent e) {
+				return sllMode;
+			}
+
+			@Override
+			public void setSelected(@NotNull AnActionEvent e, boolean state) {
+				sllMode = state;
+			}
+		};
 
 		DefaultActionGroup actionGroup = new DefaultActionGroup(
 				refreshAction,
@@ -187,7 +204,8 @@ public class PreviewPanel extends JPanel implements ParsingResultSelectionListen
 				scrollFromSourceBtn,
 				scrollToSourceBtn,
 				autoBuildTree,
-				autoBuildHier
+				autoBuildHier,
+				sllModeBtn
 		);
 
 		return ActionManager.getInstance().createActionToolbar(PREVIEW_WINDOW_ID, actionGroup, false);
